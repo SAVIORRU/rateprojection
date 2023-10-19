@@ -8,6 +8,6 @@ public interface DataSource {
 
     public ProjectionDataResponse provideData();
 
-    public void configure(Map<String, String> settings);
+    public void configure(Map<String, String> settings) throws IllegalArgumentException;
 
 }

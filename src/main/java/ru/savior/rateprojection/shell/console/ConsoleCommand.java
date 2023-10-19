@@ -19,6 +19,11 @@ public class ConsoleCommand {
     public static final String ARGUMENT_WORD_CURRENCY = "currency";
     public static final String ARGUMENT_WORD_TIME = "time";
 
+    public static final String CONTEXT_DATA_PROJECTION = "projectionData";
+
+    public static final String CONTEXT_DATA_SHELL = "runningShell";
+
+    @Getter
     private final ConsoleCommandType commandType;
 
     @Getter
@@ -33,7 +38,8 @@ public class ConsoleCommand {
         this.commandArguments = commandArguments;
     }
 
-    public static ConsoleCommand of( ConsoleCommandType commandType, Map<String, String> commandArguments ) {
+    public static ConsoleCommand of( ConsoleCommandType commandType, Map<String, String> commandArguments )
+            throws IllegalArgumentException {
         List<String> commandWords = new ArrayList<>();
         switch (commandType){
             case RATE -> {
@@ -44,6 +50,8 @@ public class ConsoleCommand {
             case EXIT -> {
                 commandWords.add(COMMAND_WORD_EXIT);
             }
+            default -> {
+                throw new IllegalArgumentException(); }
 
         }
         return new ConsoleCommand(commandType, commandWords, commandArguments);

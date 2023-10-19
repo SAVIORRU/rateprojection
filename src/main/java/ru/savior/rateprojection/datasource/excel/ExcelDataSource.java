@@ -7,8 +7,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jetbrains.annotations.NotNull;
 import ru.savior.rateprojection.core.entity.Currency;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
-import ru.savior.rateprojection.datasource.DataSource;
 import ru.savior.rateprojection.core.service.ProjectionDataResponse;
+import ru.savior.rateprojection.datasource.DataSource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,9 +56,14 @@ public class ExcelDataSource implements DataSource {
             }
             validFilesCount++;
         }
-        dataSourceResponse.setSuccessful(true);
-        dataSourceResponse.getLog().add("Successfully loaded " + validFilesCount + " with " +
-                dataSourceResponse.getProvidedData().size() + " rows total");
+        if (validFilesCount > 0) {
+            dataSourceResponse.setSuccessful(true);
+            dataSourceResponse.getLog().add("Successfully loaded " + validFilesCount + " Excel files with " +
+                    dataSourceResponse.getProvidedData().size() + " rows total");
+        } else {
+            dataSourceResponse.setSuccessful(false);
+            dataSourceResponse.getLog().add("No valid data has been found in " + filesToRead.size() + " files");
+        }
         return dataSourceResponse;
     }
 
@@ -132,12 +137,14 @@ public class ExcelDataSource implements DataSource {
                                 value = cell.getStringCellValue();
 
                             }
-                            default -> { continue; }
+                            default -> {
+                                continue;
+                            }
                         }
                         rowData.put(header, value);
                     }
                 }
-                if (!rowData.isEmpty()){
+                if (!rowData.isEmpty()) {
                     dataList.add(rowData);
                 }
 

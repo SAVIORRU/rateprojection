@@ -20,7 +20,7 @@ public class ProjectionService {
         projectionAlgorithms.add(new AverageProjection());
     }
 
-    public DailyCurrencyRate projectForNextDay(List<DailyCurrencyRate> projectionData,
+    public ProjectionDataResponse projectForNextDay(List<DailyCurrencyRate> projectionData,
                                                Currency currencyType, ProjectionAlgorithmType algorithmType){
         List<DailyCurrencyRate> completedProjectionData = prepareProjectionData(projectionData, currencyType);
         ProjectionAlgorithm algorithm = projectionAlgorithms.stream().filter(x -> x.getType().compareTo(algorithmType) == 0).
@@ -28,7 +28,7 @@ public class ProjectionService {
         return algorithm.projectForNextDay(completedProjectionData);
     }
 
-    public List<DailyCurrencyRate> projectForNextWeek(List<DailyCurrencyRate> projectionData,
+    public ProjectionDataResponse projectForNextWeek(List<DailyCurrencyRate> projectionData,
                                                Currency currencyType, ProjectionAlgorithmType algorithmType){
         List<DailyCurrencyRate> completedProjectionData = prepareProjectionData(projectionData, currencyType);
         ProjectionAlgorithm algorithm = projectionAlgorithms.stream().filter(x -> x.getType().compareTo(algorithmType) == 0).

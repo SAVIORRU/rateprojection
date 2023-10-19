@@ -9,11 +9,13 @@ public class ConsoleCommandParser {
 
     private static final int COMMAND_WORD_INDEX = 0;
 
-    public static Optional<ConsoleCommand> parseCommandLine(String commandLine) {
+    public ConsoleCommand parseCommandLine(String commandLine) throws IllegalArgumentException {
         ConsoleCommand parsedConsoleCommand = null;
         List<String> commandWords = Arrays.asList(commandLine.split("\\s* \\s*"));
         for (ConsoleCommandType commandType : ConsoleCommandType.values()) {
-            parsedConsoleCommand = ConsoleCommand.of(commandType, new HashMap<>());
+
+                parsedConsoleCommand = ConsoleCommand.of(commandType, new HashMap<>());
+
             if (parsedConsoleCommand.getCommandWords().size() != commandWords.size()) {
                 parsedConsoleCommand = null;
                 continue;
@@ -32,8 +34,10 @@ public class ConsoleCommandParser {
             parsedConsoleCommand = null;
 
         }
-
-        return Optional.of(parsedConsoleCommand);
+        if (parsedConsoleCommand == null) {
+            throw new IllegalArgumentException();
+        }
+        return parsedConsoleCommand;
 
     }
 }

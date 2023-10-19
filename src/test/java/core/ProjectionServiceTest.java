@@ -3,6 +3,7 @@ package core;
 import org.junit.jupiter.api.Test;
 import ru.savior.rateprojection.core.entity.Currency;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
+import ru.savior.rateprojection.core.service.ProjectionDataResponse;
 import ru.savior.rateprojection.core.service.ProjectionService;
 import ru.savior.rateprojection.core.service.algorithm.ProjectionAlgorithmType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,12 +23,12 @@ public class ProjectionServiceTest {
 
         List<DailyCurrencyRate> testData = TestDataGenerator.generateTestProjectionData(10, true);
 
-        DailyCurrencyRate dailyCurrencyRate = projectionService.projectForNextDay(
+        ProjectionDataResponse dataResponse = projectionService.projectForNextDay(
                 testData,
                 Currency.USD, ProjectionAlgorithmType.AVERAGE);
 
-        assertEquals(testData.get(0).getRate(), dailyCurrencyRate.getRate());
-        assertEquals(dailyCurrencyRate.getRateDate(), LocalDateTime.now().plusDays(1).
+        assertEquals(testData.get(0).getRate(), dataResponse.getProvidedData().get(0).getRate());
+        assertEquals(dataResponse.getProvidedData().get(0).getRateDate(), LocalDateTime.now().plusDays(1).
                 withHour(0).withMinute(0).withSecond(0).withNano(0));
     }
 
@@ -37,13 +38,15 @@ public class ProjectionServiceTest {
 
         List<DailyCurrencyRate> testData = TestDataGenerator.generateTestProjectionData(10, true);
 
-        List<DailyCurrencyRate> dailyCurrencyRates = projectionService.projectForNextWeek(
+        ProjectionDataResponse dataResponse = projectionService.projectForNextWeek(
                 testData,
                 Currency.USD, ProjectionAlgorithmType.AVERAGE);
 
-        assertEquals(dailyCurrencyRates.get(dailyCurrencyRates.size() - 1).getRate(), testData.get(testData.size() - 1).getRate());
-        assertEquals(dailyCurrencyRates.size(), 7);
-        assertEquals(dailyCurrencyRates.get(dailyCurrencyRates.size() - 1).getRateDate(), LocalDateTime.now().plusDays(7).
+        assertEquals(dataResponse.getProvidedData().get(dataResponse.getProvidedData().size() - 1).
+                getRate(), testData.get(testData.size() - 1).getRate());
+        assertEquals(dataResponse.getProvidedData().size(), 7);
+        assertEquals(dataResponse.getProvidedData().get(dataResponse.getProvidedData().size() - 1).
+                getRateDate(), LocalDateTime.now().plusDays(7).
                 withHour(0).withMinute(0).withSecond(0).withNano(0));
     }
 
