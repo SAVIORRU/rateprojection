@@ -45,8 +45,9 @@ public class ConsoleShell implements Shell {
         DataSource excelDataSource = new ExcelDataSource();
         try {
             Map<String, String> settings = new HashMap<>();
-            File file = new File("src/main/resources");
-            settings.put("excelFilesFolder", file.getAbsolutePath());
+            String jarFilePath = ConsoleShell.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            File jarFile = new File(jarFilePath);
+            settings.put("excelFilesFolder", jarFile.getParentFile().getAbsolutePath());
             excelDataSource.configure(settings);
         } catch (IllegalArgumentException exception) {
             loadingLog.add(exception.getMessage());
