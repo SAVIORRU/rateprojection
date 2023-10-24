@@ -19,53 +19,66 @@ public class ConsoleCommandProcessor {
         List<String> commandOutput = new ArrayList<>();
         switch (command.getCommandType()) {
             case RATE -> {
-                List<DailyCurrencyRate> projectionData = new ArrayList<>();
-                if (contextData.containsKey(ConsoleCommand.CONTEXT_DATA_PROJECTION)) {
-                    try {
-                         projectionData = (List<DailyCurrencyRate>)
-                                contextData.get(ConsoleCommand.CONTEXT_DATA_PROJECTION);
-                        if (projectionData == null) {
-                            commandOutput.add("The context data for " + ConsoleCommandType.RATE + " is invalid");
-                            return commandOutput;
-                        }
-                    }
-                    catch
-                    (RuntimeException runtimeException) {
-                        commandOutput.add("The context data for " + ConsoleCommandType.RATE + " is invalid");
-                        return commandOutput;
-                    }
-                    String currencyTypeRaw = command.getCommandArguments().get(ConsoleCommand.ARGUMENT_WORD_CURRENCY);
-                    String projectionTimeRaw = command.getCommandArguments().get(ConsoleCommand.ARGUMENT_WORD_TIME);
-                    commandOutput.addAll(processRateCommand(currencyTypeRaw, projectionTimeRaw, projectionData));
-                } else {
-                    commandOutput.add("The context data for " + ConsoleCommandType.RATE + " is invalid");
-                    return commandOutput;
-                }
+                commandOutput.addAll(loadAndExecuteRateCommand(command, contextData));
             }
 
             case EXIT -> {
-                ConsoleShell shell = null;
-                if (contextData.containsKey(ConsoleCommand.CONTEXT_DATA_SHELL)) {
-                    try {
-                        shell = (ConsoleShell) contextData.get(ConsoleCommand.CONTEXT_DATA_SHELL);
-                        if (shell == null) {
-                            commandOutput.add("The context data for " + ConsoleCommandType.EXIT + " is invalid");
-                            return commandOutput;
-                        }
-                    } catch (RuntimeException runtimeException) {
-                        commandOutput.add("The context data for " + ConsoleCommandType.EXIT + " is invalid");
-                        return commandOutput;
-                    }
-                    shell.terminate();
-                } else {
-                    commandOutput.add("The context data for " + ConsoleCommandType.EXIT + " is invalid");
-                    return commandOutput;
-                }
+                commandOutput.addAll(loadAndExecuteExitCommand(contextData));
 
             }
             default -> {
                 commandOutput.add("The executing command is not supported");
             }
+        }
+        return commandOutput;
+    }
+
+
+    private List<String> loadAndExecuteExitCommand(Map<String, Object> contextData) {
+        ConsoleShell shell = null;
+        List<String> commandOutput = new ArrayList<>();
+        if (contextData.containsKey(ConsoleCommand.CONTEXT_DATA_SHELL)) {
+            try {
+                shell = (ConsoleShell) contextData.get(ConsoleCommand.CONTEXT_DATA_SHELL);
+                if (shell == null) {
+                    commandOutput.add("The context data for " + ConsoleCommandType.EXIT + " is invalid");
+                    return commandOutput;
+                }
+            } catch (RuntimeException runtimeException) {
+                commandOutput.add("The context data for " + ConsoleCommandType.EXIT + " is invalid");
+                return commandOutput;
+            }
+            shell.terminate();
+        } else {
+            commandOutput.add("The context data for " + ConsoleCommandType.EXIT + " is invalid");
+            return commandOutput;
+        }
+        return commandOutput;
+    }
+
+
+    private List<String> loadAndExecuteRateCommand(ConsoleCommand command, Map<String, Object> contextData) {
+        List<DailyCurrencyRate> projectionData = new ArrayList<>();
+        List<String> commandOutput = new ArrayList<>();
+        if (contextData.containsKey(ConsoleCommand.CONTEXT_DATA_PROJECTION)) {
+            try {
+                projectionData = (List<DailyCurrencyRate>)
+                        contextData.get(ConsoleCommand.CONTEXT_DATA_PROJECTION);
+                if (projectionData == null) {
+                    commandOutput.add("The context data for " + ConsoleCommandType.RATE + " is invalid");
+                    return commandOutput;
+                }
+            } catch
+            (RuntimeException runtimeException) {
+                commandOutput.add("The context data for " + ConsoleCommandType.RATE + " is invalid");
+                return commandOutput;
+            }
+            String currencyTypeRaw = command.getCommandArguments().get(ConsoleCommand.ARGUMENT_WORD_CURRENCY);
+            String projectionTimeRaw = command.getCommandArguments().get(ConsoleCommand.ARGUMENT_WORD_TIME);
+            commandOutput.addAll(processRateCommand(currencyTypeRaw, projectionTimeRaw, projectionData));
+        } else {
+            commandOutput.add("The context data for " + ConsoleCommandType.RATE + " is invalid");
+            return commandOutput;
         }
         return commandOutput;
     }
@@ -86,7 +99,8 @@ public class ConsoleCommandProcessor {
         switch (projectionTimeRaw.toLowerCase()) {
             case ConsoleCommand.ARGUMENT_WORD_TOMORROW -> {
                 commandOutput.addAll(processRateForDayCommand(projectionData,
-                        currencyType, ProjectionAlgorithmType.AVERAGE));}
+                        currencyType, ProjectionAlgorithmType.AVERAGE));
+            }
             case ConsoleCommand.ARGUMENT_WORD_WEEK -> {
                 commandOutput.addAll(processRateForWeekCommand(projectionData,
                         currencyType, ProjectionAlgorithmType.AVERAGE));
@@ -100,7 +114,6 @@ public class ConsoleCommandProcessor {
     }
 
 
-
     private List<String> processRateForDayCommand(List<DailyCurrencyRate> projectionData, Currency currencyType,
                                                   ProjectionAlgorithmType algorithmType) {
         ProjectionService projectionService = new ProjectionService();
@@ -109,8 +122,9 @@ public class ConsoleCommandProcessor {
 
         return formatProjectionDataResponse(dataResponse);
     }
+
     private List<String> processRateForWeekCommand(List<DailyCurrencyRate> projectionData, Currency currencyType,
-                                                  ProjectionAlgorithmType algorithmType) {
+                                                   ProjectionAlgorithmType algorithmType) {
         ProjectionService projectionService = new ProjectionService();
         ProjectionDataResponse dataResponse = projectionService.projectForNextWeek(projectionData, currencyType,
                 algorithmType);
@@ -118,7 +132,7 @@ public class ConsoleCommandProcessor {
         return formatProjectionDataResponse(dataResponse);
     }
 
-    private List<String> formatProjectionDataResponse( ProjectionDataResponse dataResponse ){
+    private List<String> formatProjectionDataResponse(ProjectionDataResponse dataResponse) {
         List<String> commandOutput = new ArrayList<>();
         if (dataResponse.isSuccessful()) {
             for (DailyCurrencyRate dailyCurrencyRate : dataResponse.getProvidedData()) {

@@ -1,5 +1,6 @@
 package ru.savior.rateprojection.shell.console;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.savior.rateprojection.core.service.ProjectionDataResponse;
 import ru.savior.rateprojection.datasource.DataSource;
 import ru.savior.rateprojection.datasource.excel.ExcelDataSource;
@@ -8,15 +9,13 @@ import ru.savior.rateprojection.shell.Shell;
 import java.io.File;
 import java.util.*;
 
+@Slf4j
 public class ConsoleShell implements Shell {
 
     private final Map<String, Object> context = new HashMap<>();
-
-    private boolean isRunning;
-
     private final ConsoleCommandParser commandParser = new ConsoleCommandParser();
-
     private final ConsoleCommandProcessor commandProcessor = new ConsoleCommandProcessor();
+    private boolean isRunning;
 
     public ConsoleShell() {
     }

@@ -1,14 +1,19 @@
 package ru.savior.rateprojection.core.service.algorithm;
 
 
+import lombok.extern.slf4j.Slf4j;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
 import ru.savior.rateprojection.core.service.ProjectionDataResponse;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 
+@Slf4j
 public class AverageProjection extends ProjectionAlgorithm {
 
     private static final int DAYS_FOR_AVERAGE = 7;
@@ -19,8 +24,7 @@ public class AverageProjection extends ProjectionAlgorithm {
 
     @Override
     public ProjectionDataResponse projectForWeek(List<DailyCurrencyRate> projectionData) {
-        LocalDateTime targetDate = LocalDateTime.now().plusDays(7).withHour(0).
-                withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime targetDate = LocalDate.now().plusDays(7).atStartOfDay();
         ProjectionDataResponse dataResponse = projectForDate(projectionData, targetDate);
         if (dataResponse.isSuccessful()) {
             List<DailyCurrencyRate> projectionDataForWeek = dataResponse.getProvidedData().subList(
@@ -32,7 +36,7 @@ public class AverageProjection extends ProjectionAlgorithm {
 
     @Override
     public ProjectionDataResponse projectForNextDay(List<DailyCurrencyRate> projectionData) {
-        LocalDateTime targetDate = LocalDateTime.now().plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime targetDate = LocalDate.now().plusDays(1).atStartOfDay();
         ProjectionDataResponse dataResponse = projectForDate(projectionData, targetDate);
         if (dataResponse.isSuccessful()) {
             DailyCurrencyRate dailyCurrencyRate = dataResponse.getProvidedData().
@@ -48,6 +52,8 @@ public class AverageProjection extends ProjectionAlgorithm {
         ProjectionDataResponse dataResponse = new ProjectionDataResponse(new ArrayList<>(), new ArrayList<>(), true);
         if (projectionData.size() < DAYS_FOR_AVERAGE) {
             dataResponse.getLog().add("Not enough data for projection");
+            log.error("Not enough data for average projection, need {}, provided {}",
+                    DAYS_FOR_AVERAGE, projectionData.size());
             dataResponse.setSuccessful(false);
             return dataResponse;
         }
@@ -55,7 +61,7 @@ public class AverageProjection extends ProjectionAlgorithm {
         List<DailyCurrencyRate> toDateProjectionData = new ArrayList<>(projectionData);
         while (targetDate.isAfter(currentDate)) {
             DailyCurrencyRate lastRate = toDateProjectionData.get(toDateProjectionData.size() - 1);
-            Double average = collectAverage(toDateProjectionData);
+            BigDecimal average = collectAverage(toDateProjectionData);
             currentDate = currentDate.plusDays(1);
             toDateProjectionData.add(new DailyCurrencyRate(lastRate.getCurrencyType(), currentDate, average));
         }
@@ -63,12 +69,12 @@ public class AverageProjection extends ProjectionAlgorithm {
         return dataResponse;
     }
 
-    private Double collectAverage(List<DailyCurrencyRate> projectionData) {
-        Double average = 0D;
+    private BigDecimal collectAverage(List<DailyCurrencyRate> projectionData) {
+        BigDecimal average = new BigDecimal("0");
         for (int i = projectionData.size() - 1; i > projectionData.size() - DAYS_FOR_AVERAGE - 1; i--) {
-            average += projectionData.get(i).getRate();
+            average = average.add(projectionData.get(i).getRate());
         }
-        return average / DAYS_FOR_AVERAGE;
+        return average.divide(new BigDecimal(DAYS_FOR_AVERAGE), RoundingMode.UP);
     }
 
 }

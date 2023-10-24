@@ -3,7 +3,6 @@ package ru.savior.rateprojection.shell.console;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 public class ConsoleCommandParser {
 
@@ -14,7 +13,7 @@ public class ConsoleCommandParser {
         List<String> commandWords = Arrays.asList(commandLine.split("\\s* \\s*"));
         for (ConsoleCommandType commandType : ConsoleCommandType.values()) {
 
-                parsedConsoleCommand = ConsoleCommand.of(commandType, new HashMap<>());
+            parsedConsoleCommand = ConsoleCommand.of(commandType, new HashMap<>());
 
             if (parsedConsoleCommand.getCommandWords().size() != commandWords.size()) {
                 parsedConsoleCommand = null;

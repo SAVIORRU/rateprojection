@@ -7,7 +7,6 @@ import ru.savior.rateprojection.core.service.algorithm.ProjectionAlgorithm;
 import ru.savior.rateprojection.core.service.algorithm.ProjectionAlgorithmType;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class ProjectionService {
     }
 
     public ProjectionDataResponse projectForNextDay(List<DailyCurrencyRate> projectionData,
-                                               Currency currencyType, ProjectionAlgorithmType algorithmType){
+                                                    Currency currencyType, ProjectionAlgorithmType algorithmType) {
         List<DailyCurrencyRate> completedProjectionData = prepareProjectionData(projectionData, currencyType);
         ProjectionAlgorithm algorithm = projectionAlgorithms.stream().filter(x -> x.getType().compareTo(algorithmType) == 0).
                 findAny().get();
@@ -29,7 +28,7 @@ public class ProjectionService {
     }
 
     public ProjectionDataResponse projectForNextWeek(List<DailyCurrencyRate> projectionData,
-                                               Currency currencyType, ProjectionAlgorithmType algorithmType){
+                                                     Currency currencyType, ProjectionAlgorithmType algorithmType) {
         List<DailyCurrencyRate> completedProjectionData = prepareProjectionData(projectionData, currencyType);
         ProjectionAlgorithm algorithm = projectionAlgorithms.stream().filter(x -> x.getType().compareTo(algorithmType) == 0).
                 findAny().get();
@@ -37,7 +36,7 @@ public class ProjectionService {
     }
 
     private List<DailyCurrencyRate> prepareProjectionData(List<DailyCurrencyRate> projectionData,
-                                                          Currency currencyType){
+                                                          Currency currencyType) {
         List<DailyCurrencyRate> preparedProjectionData = new ArrayList<>(projectionData.
                 stream().filter(dailyCurrencyRate -> dailyCurrencyRate.getCurrencyType().compareTo(currencyType) == 0).
                 toList());

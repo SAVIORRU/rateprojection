@@ -9,6 +9,7 @@ import ru.savior.rateprojection.core.service.algorithm.ProjectionAlgorithmType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,11 +55,11 @@ public class ProjectionServiceTest {
 
         public static List<DailyCurrencyRate> generateTestProjectionData(Integer recordCount , boolean generateEqualRates){
             List<DailyCurrencyRate> testData = new ArrayList<>();
-            Double rate = 1D;
+            BigDecimal rate = new BigDecimal("1");
             LocalDateTime currentDate = LocalDateTime.of(2023, 9, 15, 0, 0);
             for (int i = 0; i < recordCount; i++) {
                 if (!generateEqualRates) {
-                    rate = Math.random();
+                    rate = BigDecimal.valueOf(Math.random());
                 }
                 testData.add(new DailyCurrencyRate(Currency.USD, currentDate, rate));
                 currentDate = currentDate.plusDays(1);

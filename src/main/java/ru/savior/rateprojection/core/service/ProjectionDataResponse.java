@@ -1,6 +1,9 @@
 package ru.savior.rateprojection.core.service;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
 
 import java.util.List;
@@ -11,9 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 public class ProjectionDataResponse {
 
-    private  List<DailyCurrencyRate> providedData;
+    private List<DailyCurrencyRate> providedData;
 
-    private  List<String> log;
+    private List<String> log;
 
     private boolean isSuccessful;
 
