@@ -112,6 +112,7 @@ public class ExcelDataSource implements DataSource {
             log.error("Path {} do not exist", directoryPath);
         }
         if (!folder.isDirectory()) {
+            isValid = false;
             log.error("Path {} is not directory", directoryPath);
         }
         return isValid;

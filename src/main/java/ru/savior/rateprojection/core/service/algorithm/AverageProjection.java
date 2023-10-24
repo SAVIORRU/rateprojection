@@ -70,7 +70,7 @@ public class AverageProjection extends ProjectionAlgorithm {
     }
 
     private BigDecimal collectAverage(List<DailyCurrencyRate> projectionData) {
-        BigDecimal average = new BigDecimal("0");
+        BigDecimal average = new BigDecimal(0);
         for (int i = projectionData.size() - 1; i > projectionData.size() - DAYS_FOR_AVERAGE - 1; i--) {
             average = average.add(projectionData.get(i).getRate());
         }

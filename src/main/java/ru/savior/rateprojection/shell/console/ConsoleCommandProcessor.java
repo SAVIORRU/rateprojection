@@ -89,7 +89,8 @@ public class ConsoleCommandProcessor {
         Currency currencyType;
         List<String> commandOutput = new ArrayList<>();
 
-        if (Arrays.stream(Currency.values()).anyMatch(x -> x.toString().equals(currencyTypeRaw.toUpperCase()))) {
+        if (Arrays.stream(Currency.values())
+                .anyMatch(x -> x.toString().equals(currencyTypeRaw.toUpperCase()))) {
             currencyType = Currency.valueOf(currencyTypeRaw.toUpperCase());
         } else {
             commandOutput.add("The following currency " + currencyTypeRaw + " not found");
