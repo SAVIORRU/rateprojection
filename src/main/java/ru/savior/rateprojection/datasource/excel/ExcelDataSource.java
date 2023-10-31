@@ -29,6 +29,8 @@ public class ExcelDataSource implements DataSource {
         put("турецкая лира", Currency.TRY);
         put("доллар сша", Currency.USD);
         put("евро", Currency.EUR);
+        put("болгарский лев", Currency.BGN);
+        put("армянский драм", Currency.AMD);
     }};
     private static final String EXCEL_FIELD_NOMINAL = "nominal";
     private static final String EXCEL_FIELD_DATE = "data";

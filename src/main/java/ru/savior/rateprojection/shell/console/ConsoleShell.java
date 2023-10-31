@@ -15,6 +15,7 @@ public class ConsoleShell implements Shell {
     private final Map<String, Object> context = new HashMap<>();
     private final ConsoleCommandParser commandParser = new ConsoleCommandParser();
     private final ConsoleCommandProcessor commandProcessor = new ConsoleCommandProcessor();
+
     private boolean isRunning;
 
     public ConsoleShell() {

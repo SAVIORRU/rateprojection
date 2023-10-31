@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import ru.savior.rateprojection.core.entity.Currency;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
 import ru.savior.rateprojection.core.service.ProjectionDataResponse;
-import ru.savior.rateprojection.core.service.ProjectionService;
+import ru.savior.rateprojection.core.service.ProjectionServiceImpl;
 import ru.savior.rateprojection.core.service.algorithm.ProjectionAlgorithmType;
 
 import java.text.DecimalFormat;
@@ -117,42 +117,21 @@ public class ConsoleCommandProcessor {
 
     private List<String> processRateForDayCommand(List<DailyCurrencyRate> projectionData, Currency currencyType,
                                                   ProjectionAlgorithmType algorithmType) {
-        ProjectionService projectionService = new ProjectionService();
+        ProjectionServiceImpl projectionService = new ProjectionServiceImpl();
         ProjectionDataResponse dataResponse = projectionService.projectForNextDay(projectionData, currencyType,
                 algorithmType);
 
-        return formatProjectionDataResponse(dataResponse);
+        return dataResponse.format();
     }
 
     private List<String> processRateForWeekCommand(List<DailyCurrencyRate> projectionData, Currency currencyType,
                                                    ProjectionAlgorithmType algorithmType) {
-        ProjectionService projectionService = new ProjectionService();
+        ProjectionServiceImpl projectionService = new ProjectionServiceImpl();
         ProjectionDataResponse dataResponse = projectionService.projectForNextWeek(projectionData, currencyType,
                 algorithmType);
 
-        return formatProjectionDataResponse(dataResponse);
+        return dataResponse.format();
     }
 
-    private List<String> formatProjectionDataResponse(ProjectionDataResponse dataResponse) {
-        List<String> commandOutput = new ArrayList<>();
-        if (dataResponse.isSuccessful()) {
-            for (DailyCurrencyRate dailyCurrencyRate : dataResponse.getProvidedData()) {
-                commandOutput.add(formatDailyRate(dailyCurrencyRate));
-            }
-        } else {
-            commandOutput.addAll(dataResponse.getLog());
-        }
-
-        return commandOutput;
-    }
-
-    private String formatDailyRate(DailyCurrencyRate dailyCurrencyRate) {
-        String rateDate = dailyCurrencyRate.getRateDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        String dayOfWeek = dailyCurrencyRate.getRateDate().getDayOfWeek().getDisplayName(TextStyle.SHORT,
-                new Locale("ru", "RU"));
-        String rate = new DecimalFormat("#.00").format(dailyCurrencyRate.getRate());
-
-        return dayOfWeek + " " + rateDate + " - " + rate;
-    }
 
 }
