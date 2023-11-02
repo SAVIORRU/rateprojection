@@ -29,7 +29,8 @@ public class MysticalProjection extends ProjectionAlgorithm {
                 .toList();
         if (previousYearsRates.isEmpty()) {
             log.error("Not enough data for mystical projection, need at least 1");
-            throw new IllegalArgumentException("Not enough data for mystical projection");
+            throw new IllegalArgumentException("Not enough data for mystical projection for currency" +
+                    projectionData.get(0).getCurrencyType().toString());
         }
         Random random = new Random();
         int randomIndex = random.nextInt(0, previousYearsRates.size());

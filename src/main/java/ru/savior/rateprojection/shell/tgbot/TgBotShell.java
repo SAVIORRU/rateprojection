@@ -10,6 +10,9 @@ import ru.savior.rateprojection.datasource.DataSource;
 import ru.savior.rateprojection.datasource.excel.ExcelDataSource;
 import ru.savior.rateprojection.shell.Shell;
 import ru.savior.rateprojection.shell.console.ConsoleShell;
+import ru.savior.rateprojection.shell.tgbot.command.CommandFactoryImpl;
+import ru.savior.rateprojection.shell.tgbot.command.pattern.CommandPatternFactoryImpl;
+import ru.savior.rateprojection.shell.tgbot.command.rate.RateCommand;
 
 import java.io.File;
 import java.util.HashMap;
@@ -21,7 +24,8 @@ public class TgBotShell implements Shell {
     public void runShell() {
         try {
             Map<String, Object> context = getContext();
-            TgProjectionBot bot = new TgProjectionBot(context, new TgBotCommandParser(),
+            TgProjectionBot bot = new TgProjectionBot(context, new TgBotCommandParser(new CommandFactoryImpl(),
+                    new CommandPatternFactoryImpl()),
                     new TgBotCommandProcessor(new ProjectionServiceImpl()));
             TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
             api.registerBot(bot);
@@ -40,7 +44,7 @@ public class TgBotShell implements Shell {
         excelDataSource.configure(settings);
         ProjectionDataResponse dataResponse = excelDataSource.provideData();
         if (dataResponse.isSuccessful()) {
-            context.put(TgBotCommandProcessor.CONTEXT_DATA_PROJECTION, dataResponse.getProvidedData());
+            context.put(RateCommand.CONTEXT_DATA_PROJECTION, dataResponse.getProvidedData());
         } else {
             throw new RuntimeException();
         }

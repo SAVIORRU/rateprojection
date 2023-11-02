@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.savior.rateprojection.shell.tgbot.command.BotCommand;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -40,13 +41,13 @@ public class TgProjectionBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return "6726549785:AAH8LCuJEQQB9hhOBCLkNwDuj3gAAnEC1Zs";
+        return "6726549785:AAEC1PHGkXjwG1r8YL_Q3w7iWXBOq6IMEFI";
     }
 
     private List<String> processInput(String input) {
         List<String> output = new ArrayList<>();
         try {
-            TgBotCommand command = parser.parseCommandString(input);
+            BotCommand command = parser.parseCommandString(input);
             output = processor.processCommand(command, context);
         } catch (IllegalArgumentException exception) {
             output.add(exception.getMessage());

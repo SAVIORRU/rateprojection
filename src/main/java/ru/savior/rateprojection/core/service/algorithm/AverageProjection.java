@@ -26,7 +26,8 @@ public class AverageProjection extends ProjectionAlgorithm {
         if (projectionData.size() < DAYS_FOR_AVERAGE) {
             log.error("Not enough data for average projection, need {}, provided {}",
                     DAYS_FOR_AVERAGE, projectionData.size());
-            throw new IllegalArgumentException("Not enough data for average projection");
+            throw new IllegalArgumentException("Not enough data for average projection for currency" +
+                    projectionData.get(0).getCurrencyType().toString());
         }
         List<DailyCurrencyRate> projectedData = new ArrayList<>(projectionData);
         LocalDateTime currentDate = projectionData.get(projectionData.size() - 1).getRateDate();

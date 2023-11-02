@@ -25,7 +25,8 @@ public class ExtrapolationProjection extends ProjectionAlgorithm {
         if (projectionData.size() < DAYS_FOR_EXTRAPOLATION) {
                 log.error("Not enough data for extrapolation projection, need {}, provided {}",
                         DAYS_FOR_EXTRAPOLATION, projectionData.size());
-                throw new IllegalArgumentException("Not enough data for extrapolation projection");
+                throw new IllegalArgumentException("Not enough data for extrapolation projection for currency" +
+                        projectionData.get(0).getCurrencyType().toString());
         }
         List<BigDecimal> xArgsForRegression = new ArrayList<>();
         List<BigDecimal> yArgsForRegression = new ArrayList<>();

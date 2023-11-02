@@ -27,7 +27,8 @@ public class PastYearProjection extends ProjectionAlgorithm {
         }
         if (rate == null) {
             log.error("No data found in previous year for past-year projection");
-            throw new NoSuchElementException("No data found in previous year for past-year projection");
+            throw new NoSuchElementException("No data found in previous year for past-year projection for currency" +
+                    projectionData.get(0).getCurrencyType().toString());
         }
         return rate;
     }

@@ -4,10 +4,12 @@ import org.junit.jupiter.api.Test;
 import ru.savior.rateprojection.core.entity.Currency;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
 import ru.savior.rateprojection.core.service.ProjectionServiceImpl;
-import ru.savior.rateprojection.shell.tgbot.TgBotCommand;
-import ru.savior.rateprojection.shell.tgbot.TgBotCommandPattern;
 import ru.savior.rateprojection.shell.tgbot.TgBotCommandProcessor;
 import ru.savior.rateprojection.shell.tgbot.TgBotCommandType;
+import ru.savior.rateprojection.shell.tgbot.command.BotCommand;
+import ru.savior.rateprojection.shell.tgbot.command.CommandFactoryImpl;
+import ru.savior.rateprojection.shell.tgbot.command.rate.RateCommand;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
@@ -17,27 +19,19 @@ import java.util.*;
 public class TgBotCommandProcessorTest {
     @Test
     public void given_ratePeriodCommand_listOutput() {
-        TgBotCommand command = new TgBotCommand(TgBotCommandType.RATE_PERIOD, new ArrayList<>(), new HashMap<>());
         Map<String, Object> context = new HashMap<>();
-        context.put(TgBotCommandProcessor.CONTEXT_DATA_PROJECTION, createSampleProjectionData(false));
-        command.getCurrencies().add(Currency.USD.toString());
-        command.getCurrencies().add(Currency.EUR.toString());
-        command.getParameters().put(TgBotCommandPattern.COMMAND_ARGUMENT_OUTPUT, "list");
-        command.getParameters().put(TgBotCommandPattern.COMMAND_ARGUMENT_ALGORITHM, "extrapolate");
-        command.getParameters().put(TgBotCommandPattern.COMMAND_ARGUMENT_PERIOD, "week");
+        context.put(RateCommand.CONTEXT_DATA_PROJECTION, createSampleProjectionData(false));
+        BotCommand command = new CommandFactoryImpl().getCommandFromString(TgBotCommandType.RATE_SINGLE_DATE,
+                "rate TRY -date tomorrow -alg average");
         List<String> output = new TgBotCommandProcessor(new ProjectionServiceImpl()).processCommand(command, context);
         Assertions.assertTrue(output.size() > 0);
     }
     @Test
     public void given_ratePeriodCommand_graphOutput() {
-        TgBotCommand command = new TgBotCommand(TgBotCommandType.RATE_PERIOD, new ArrayList<>(), new HashMap<>());
         Map<String, Object> context = new HashMap<>();
-        context.put(TgBotCommandProcessor.CONTEXT_DATA_PROJECTION, createSampleProjectionData(true));
-        command.getCurrencies().add(Currency.USD.toString());
-        command.getCurrencies().add(Currency.EUR.toString());
-        command.getParameters().put(TgBotCommandPattern.COMMAND_ARGUMENT_OUTPUT, "graph");
-        command.getParameters().put(TgBotCommandPattern.COMMAND_ARGUMENT_ALGORITHM, "extrapolate");
-        command.getParameters().put(TgBotCommandPattern.COMMAND_ARGUMENT_PERIOD, "month");
+        context.put(RateCommand.CONTEXT_DATA_PROJECTION, createSampleProjectionData(true));
+        BotCommand command = new CommandFactoryImpl().getCommandFromString(TgBotCommandType.RATE_SINGLE_DATE,
+                "rate USD, EUR -period week -alg mystical -output list");
         List<String> output = new TgBotCommandProcessor(new ProjectionServiceImpl()).processCommand(command, context);
         Assertions.assertTrue(output.size() > 0);
     }
