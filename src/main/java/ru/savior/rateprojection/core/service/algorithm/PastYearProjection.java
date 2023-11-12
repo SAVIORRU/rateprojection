@@ -2,6 +2,7 @@ package ru.savior.rateprojection.core.service.algorithm;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
+import ru.savior.rateprojection.core.enums.ProjectionAlgorithmType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,7 +29,7 @@ public class PastYearProjection extends ProjectionAlgorithm {
         if (rate == null) {
             log.error("No data found in previous year for past-year projection");
             throw new NoSuchElementException("No data found in previous year for past-year projection for currency" +
-                    projectionData.get(0).getCurrencyType().toString());
+                    projectionData.get(0).getCurrency().getCurrencyCode());
         }
         return rate;
     }

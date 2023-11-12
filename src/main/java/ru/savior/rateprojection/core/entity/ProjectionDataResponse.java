@@ -1,4 +1,4 @@
-package ru.savior.rateprojection.core.service;
+package ru.savior.rateprojection.core.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -15,11 +15,15 @@ import java.util.List;
 @AllArgsConstructor
 public class ProjectionDataResponse {
 
-    private List<DailyCurrencyRate> providedData;
+    private List<DailyCurrencyRate> providedData = new ArrayList<>();
 
-    private List<String> log;
+    private List<String> log = new ArrayList<>();
 
     private boolean isSuccessful;
+
+    public ProjectionDataResponse(boolean isSuccessful) {
+        this.isSuccessful = isSuccessful;
+    }
 
     public List<String> format() {
         List<String> output = new ArrayList<>();

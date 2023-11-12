@@ -1,17 +1,16 @@
 package core;
 
 import org.junit.jupiter.api.Test;
-import ru.savior.rateprojection.core.entity.Currency;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
-import ru.savior.rateprojection.core.service.ProjectionDataResponse;
+import ru.savior.rateprojection.core.entity.ProjectionDataResponse;
 import ru.savior.rateprojection.core.service.ProjectionServiceImpl;
-import ru.savior.rateprojection.core.service.algorithm.ProjectionAlgorithmType;
+import ru.savior.rateprojection.core.enums.ProjectionAlgorithmType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
 
 public class ProjectionServiceTest {
@@ -26,7 +25,7 @@ public class ProjectionServiceTest {
 
         ProjectionDataResponse dataResponse = projectionService.projectForNextDay(
                 testData,
-                Currency.USD, ProjectionAlgorithmType.AVERAGE);
+                Currency.getInstance("USD"), ProjectionAlgorithmType.AVERAGE);
 
         assertEquals(testData.get(0).getRate(), dataResponse.getProvidedData().get(0).getRate());
         assertEquals(dataResponse.getProvidedData().get(0).getRateDate(), LocalDateTime.now().plusDays(1).
@@ -41,7 +40,7 @@ public class ProjectionServiceTest {
 
         ProjectionDataResponse dataResponse = projectionService.projectForNextWeek(
                 testData,
-                Currency.USD, ProjectionAlgorithmType.AVERAGE);
+                Currency.getInstance("USD"), ProjectionAlgorithmType.AVERAGE);
 
         assertEquals(dataResponse.getProvidedData().get(dataResponse.getProvidedData().size() - 1).
                 getRate(), testData.get(testData.size() - 1).getRate());
@@ -61,7 +60,7 @@ public class ProjectionServiceTest {
                 if (!generateEqualRates) {
                     rate = BigDecimal.valueOf(Math.random());
                 }
-                testData.add(new DailyCurrencyRate(Currency.USD, currentDate, rate));
+                testData.add(new DailyCurrencyRate(Currency.getInstance("USD"), currentDate, rate));
                 currentDate = currentDate.plusDays(1);
             }
             return testData;

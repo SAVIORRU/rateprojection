@@ -1,8 +1,8 @@
 package ru.savior.rateprojection.core.service.algorithm;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.math.stat.regression.SimpleRegression;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
+import ru.savior.rateprojection.core.enums.ProjectionAlgorithmType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class ExtrapolationProjection extends ProjectionAlgorithm {
@@ -25,22 +26,20 @@ public class ExtrapolationProjection extends ProjectionAlgorithm {
         if (projectionData.size() < DAYS_FOR_EXTRAPOLATION) {
                 log.error("Not enough data for extrapolation projection, need {}, provided {}",
                         DAYS_FOR_EXTRAPOLATION, projectionData.size());
-                throw new IllegalArgumentException("Not enough data for extrapolation projection for currency" +
-                        projectionData.get(0).getCurrencyType().toString());
+                throw new IllegalArgumentException("Not enough data for extrapolation projection for currency " +
+                        projectionData.get(0).getCurrency().getCurrencyCode());
         }
-        List<BigDecimal> xArgsForRegression = new ArrayList<>();
-        List<BigDecimal> yArgsForRegression = new ArrayList<>();
+        List<BigDecimal> xArgsForRegression = IntStream.range(0, projectionData.size())
+                .mapToObj(i -> new BigDecimal(i + 1))
+                .toList();
+        List<BigDecimal> yArgsForRegression = projectionData.stream()
+                .map(DailyCurrencyRate::getRate)
+                .toList();
         Period period = Period.between(projectionData.get(projectionData.size() - 1).getRateDate().toLocalDate(),
                 targetDate.plusDays(1).toLocalDate());
-        int daysCount = period.getDays();
-        for (int i = 0; i < projectionData.size(); i++) {
-            xArgsForRegression.add(new BigDecimal(i + 1));
-            yArgsForRegression.add(projectionData.get(i).getRate());
-        }
         LinearRegression regression = new LinearRegression(xArgsForRegression.toArray(new BigDecimal[0]),
                 yArgsForRegression.toArray(new BigDecimal[0]));
-
-        return regression.predict(new BigDecimal(daysCount + projectionData.size()));
+        return regression.predict(new BigDecimal(period.getDays() + projectionData.size()));
     }
 
     private class LinearRegression {

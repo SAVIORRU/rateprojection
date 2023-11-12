@@ -2,13 +2,14 @@ package ru.savior.rateprojection.shell.tgbot;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.savior.rateprojection.shell.tgbot.command.BotCommand;
+import ru.savior.rateprojection.shell.tgbot.command.Command;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -17,11 +18,11 @@ import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
-public class TgProjectionBot extends TelegramLongPollingBot {
+public class ProjectionBot extends TelegramLongPollingBot {
 
     private final Map<String, Object> context;
-    private final TgBotCommandParser parser;
-    private final TgBotCommandProcessor processor;
+    private final CommandParser parser;
+    private final CommandProcessor processor;
 
     private static final String TG_BOT_NAME = "projection721_bot";
 
@@ -41,16 +42,20 @@ public class TgProjectionBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return "6726549785:AAEC1PHGkXjwG1r8YL_Q3w7iWXBOq6IMEFI";
+        return "6726549785:AAF-urP3QEwMnRC4SNnUpPYJIs-tD5b_x3o";
     }
 
     private List<String> processInput(String input) {
         List<String> output = new ArrayList<>();
         try {
-            BotCommand command = parser.parseCommandString(input);
+            Command command = parser.parseCommandString(input);
             output = processor.processCommand(command, context);
         } catch (IllegalArgumentException exception) {
             output.add(exception.getMessage());
+            log.error(exception.getMessage());
+        } catch (RuntimeException exception) {
+            log.error(exception.getMessage());
+            log.debug(ExceptionUtils.getStackTrace(exception));
         }
         return output;
     }

@@ -1,19 +1,20 @@
 package ru.savior.rateprojection.shell.tgbot.command.pattern;
 
 import lombok.RequiredArgsConstructor;
-import ru.savior.rateprojection.shell.tgbot.TgBotCommandType;
-import ru.savior.rateprojection.shell.tgbot.command.BotCommandConstants;
-import ru.savior.rateprojection.shell.tgbot.command.rate.RateSingleDateCommand;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import ru.savior.rateprojection.shell.tgbot.CommandType;
+import ru.savior.rateprojection.shell.tgbot.command.CommandConstants;
 
 import java.util.*;
-
+@Slf4j
 @RequiredArgsConstructor
 public class BotCommandPattern {
-    private static final String COMMAND_WORD_SETTING = BotCommandConstants.COMMAND_WORD_SETTING;
-    private static final String CURRENCY_COUNT_SETTING = BotCommandConstants.CURRENCY_COUNT_SETTING;
-    private static final String COMMAND_ARGUMENTS_SETTING = BotCommandConstants.COMMAND_ARGUMENTS_SETTING;
+    private static final String COMMAND_WORD_SETTING = CommandConstants.COMMAND_WORD_SETTING;
+    private static final String CURRENCY_COUNT_SETTING = CommandConstants.CURRENCY_COUNT_SETTING;
+    private static final String COMMAND_ARGUMENTS_SETTING = CommandConstants.COMMAND_ARGUMENTS_SETTING;
 
-    private final TgBotCommandType commandType;
+    private final CommandType commandType;
 
     private final Map<String, List<String>> patternParams;
 
@@ -38,6 +39,8 @@ public class BotCommandPattern {
                 }
             }
         } catch (RuntimeException exception) {
+            log.error(exception.getMessage());
+            log.debug(ExceptionUtils.getStackTrace(exception));
             return false;
         }
         return isValid;

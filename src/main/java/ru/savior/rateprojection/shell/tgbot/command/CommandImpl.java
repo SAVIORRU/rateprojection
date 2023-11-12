@@ -1,22 +1,20 @@
 package ru.savior.rateprojection.shell.tgbot.command;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
-import ru.savior.rateprojection.shell.tgbot.TgBotCommandType;
+import ru.savior.rateprojection.shell.tgbot.CommandType;
 
 import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public abstract class BotCommandImpl implements BotCommand {
-    private final TgBotCommandType commandType;
+public abstract class CommandImpl implements Command {
+    private final CommandType commandType;
 
     @Override
     public abstract List<String> execute(Map<String, Object> context);
 
     @Override
-    public TgBotCommandType getCommandType() {
+    public CommandType getCommandType() {
         return this.commandType;
     }
 

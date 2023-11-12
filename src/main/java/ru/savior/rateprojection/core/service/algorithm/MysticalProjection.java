@@ -2,6 +2,7 @@ package ru.savior.rateprojection.core.service.algorithm;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
+import ru.savior.rateprojection.core.enums.ProjectionAlgorithmType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,15 +12,15 @@ import java.util.Random;
 @Slf4j
 public class MysticalProjection extends ProjectionAlgorithm {
 
-
-    public MysticalProjection() {
+    private final Random random;
+    public MysticalProjection(Random random) {
         super(ProjectionAlgorithmType.MYSTICAL);
+        this.random = random;
     }
 
 
     @Override
     protected BigDecimal findRateValue(List<DailyCurrencyRate> projectionData, LocalDateTime targetDate) {
-        BigDecimal rate = null;
         List<BigDecimal> previousYearsRates = projectionData
                 .stream()
                 .filter(x -> x.getRateDate().getMonth() == targetDate.getMonth() &&
@@ -30,9 +31,8 @@ public class MysticalProjection extends ProjectionAlgorithm {
         if (previousYearsRates.isEmpty()) {
             log.error("Not enough data for mystical projection, need at least 1");
             throw new IllegalArgumentException("Not enough data for mystical projection for currency" +
-                    projectionData.get(0).getCurrencyType().toString());
+                    projectionData.get(0).getCurrency().getCurrencyCode());
         }
-        Random random = new Random();
         int randomIndex = random.nextInt(0, previousYearsRates.size());
         return previousYearsRates.get(randomIndex);
     }

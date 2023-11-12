@@ -2,13 +2,14 @@ package ru.savior.rateprojection.core.service.algorithm;
 
 
 import lombok.extern.slf4j.Slf4j;
-import ru.savior.rateprojection.core.entity.Currency;
+import ru.savior.rateprojection.core.enums.ProjectionAlgorithmType;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
 
 
@@ -27,20 +28,20 @@ public class AverageProjection extends ProjectionAlgorithm {
             log.error("Not enough data for average projection, need {}, provided {}",
                     DAYS_FOR_AVERAGE, projectionData.size());
             throw new IllegalArgumentException("Not enough data for average projection for currency" +
-                    projectionData.get(0).getCurrencyType().toString());
+                    projectionData.get(0).getCurrency().getCurrencyCode());
         }
         List<DailyCurrencyRate> projectedData = new ArrayList<>(projectionData);
         LocalDateTime currentDate = projectionData.get(projectionData.size() - 1).getRateDate();
-        Currency currencyType = projectionData.get(projectionData.size() - 1).getCurrencyType();
+        Currency currency = projectionData.get(projectionData.size() - 1).getCurrency();
         while (targetDate.isAfter(currentDate)) {
-            projectedData.add(new DailyCurrencyRate(currencyType, currentDate, collectAverage(projectedData)));
+            projectedData.add(new DailyCurrencyRate(currency, currentDate, collectAverage(projectedData)));
             currentDate = currentDate.plusDays(1);
         }
         return projectedData.get(projectedData.size() - 1).getRate();
     }
 
     private BigDecimal collectAverage(List<DailyCurrencyRate> projectionData) {
-        BigDecimal average = new BigDecimal(0);
+        BigDecimal average = BigDecimal.ZERO;
 
         for (int i = projectionData.size() - 1; i > projectionData.size() - DAYS_FOR_AVERAGE - 1; i--) {
             average = average.add(projectionData.get(i).getRate());

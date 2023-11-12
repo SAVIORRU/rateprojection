@@ -1,7 +1,9 @@
 package ru.savior.rateprojection.core.service;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.savior.rateprojection.core.entity.Currency;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import ru.savior.rateprojection.core.entity.ProjectionDataResponse;
+import ru.savior.rateprojection.core.enums.ProjectionAlgorithmType;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
 import ru.savior.rateprojection.core.service.algorithm.*;
 
@@ -20,50 +22,47 @@ public class ProjectionServiceImpl implements ProjectionService {
         projectionAlgorithms.add(new AverageProjection());
         projectionAlgorithms.add(new ExtrapolationProjection());
         projectionAlgorithms.add(new PastYearProjection());
-        projectionAlgorithms.add(new MysticalProjection());
+        projectionAlgorithms.add(new MysticalProjection(new Random()));
     }
 
     @Override
     public ProjectionDataResponse projectForNextDay(List<DailyCurrencyRate> projectionData,
-                                                    Currency currencyType, ProjectionAlgorithmType algorithmType) {
-        return project(projectionData, currencyType, algorithmType, LocalDate.now().plusDays(1).atStartOfDay());
+                                                    Currency currency, ProjectionAlgorithmType algorithmType) {
+        return project(projectionData, currency, algorithmType, LocalDate.now().plusDays(1).atStartOfDay());
     }
 
     @Override
     public ProjectionDataResponse projectForNextWeek(List<DailyCurrencyRate> projectionData,
-                                                     Currency currencyType, ProjectionAlgorithmType algorithmType) {
-        return project(projectionData, currencyType, algorithmType, LocalDate.now().plusDays(7).atStartOfDay());
+                                                     Currency currency, ProjectionAlgorithmType algorithmType) {
+        return project(projectionData, currency, algorithmType, LocalDate.now().plusDays(7).atStartOfDay());
     }
 
 
     @Override
     public ProjectionDataResponse projectForNextMonth(List<DailyCurrencyRate> projectionData,
-                                                      Currency currencyType, ProjectionAlgorithmType algorithmType) {
-        return project(projectionData, currencyType, algorithmType, LocalDate.now().plusMonths(1).atStartOfDay());
+                                                      Currency currency, ProjectionAlgorithmType algorithmType) {
+        return project(projectionData, currency, algorithmType, LocalDate.now().plusMonths(1).atStartOfDay());
     }
 
     @Override
     public ProjectionDataResponse projectForSpecificDate(List<DailyCurrencyRate> projectionData,
-                                                         Currency currencyType, ProjectionAlgorithmType algorithmType,
+                                                         Currency currency, ProjectionAlgorithmType algorithmType,
                                                          LocalDateTime targetDate) {
-        ProjectionDataResponse dataResponse = project(projectionData, currencyType, algorithmType, targetDate);
+        ProjectionDataResponse dataResponse = project(projectionData, currency, algorithmType, targetDate);
         if (dataResponse.isSuccessful()) {
-            DailyCurrencyRate singleDateRate = dataResponse.getProvidedData()
-                    .get(dataResponse.getProvidedData().size() - 1);
-            dataResponse.getProvidedData().clear();
-            dataResponse.getProvidedData().add(singleDateRate);
+            dataResponse = getProjectionResponseWithLastRate(dataResponse);
         }
-        return project(projectionData, currencyType, algorithmType, targetDate);
+        return dataResponse;
     }
 
-    private ProjectionDataResponse project(List<DailyCurrencyRate> projectionData, Currency currencyType,
+    private ProjectionDataResponse project(List<DailyCurrencyRate> projectionData, Currency currency,
                                            ProjectionAlgorithmType algorithmType, LocalDateTime targetDate) {
-        List<DailyCurrencyRate> completedProjectionData = prepareProjectionData(projectionData, currencyType);
-        ProjectionDataResponse dataResponse = null;
+        List<DailyCurrencyRate> completedProjectionData = prepareProjectionData(projectionData, currency);
+        ProjectionDataResponse dataResponse;
         if (completedProjectionData.isEmpty()) {
-            log.error("No data for specific currency {} found", currencyType);
-            dataResponse = new ProjectionDataResponse(new ArrayList<>(), new ArrayList<>(), false);
-            dataResponse.getLog().add("No data for specific currency " + currencyType + " found");
+            log.error("No data for specific currency {} found", currency);
+            dataResponse = new ProjectionDataResponse(false);
+            dataResponse.getLog().add("No data for specific currency " + currency + " found");
             return dataResponse;
         }
         try {
@@ -74,6 +73,7 @@ public class ProjectionServiceImpl implements ProjectionService {
             List<String> responseLog = new ArrayList<>();
             responseLog.add(exception.getMessage());
             log.error(exception.getMessage());
+            log.debug(ExceptionUtils.getStackTrace(exception));
             return new ProjectionDataResponse(new ArrayList<>(), responseLog, false);
         }
         return dataResponse;
@@ -84,20 +84,25 @@ public class ProjectionServiceImpl implements ProjectionService {
         Optional<ProjectionAlgorithm> algorithm = projectionAlgorithms.stream()
                 .filter(x -> x.getType().compareTo(algorithmType) == 0)
                 .findAny();
-        if (algorithm.isPresent()) {
-            return algorithm.get();
-        } else {
-            throw new NoSuchElementException("The following projection algorithm not found");
-        }
+        return algorithm.orElseThrow(() ->  new NoSuchElementException("The following projection algorithm not found"));
     }
 
     private List<DailyCurrencyRate> prepareProjectionData(List<DailyCurrencyRate> projectionData,
-                                                          Currency currencyType) {
+                                                          Currency currency) {
         List<DailyCurrencyRate> preparedProjectionData = new ArrayList<>(projectionData.stream()
-                .filter(dailyCurrencyRate -> dailyCurrencyRate.getCurrencyType().compareTo(currencyType) == 0)
+                .filter(dailyCurrencyRate -> dailyCurrencyRate.getCurrency().equals(currency))
                 .toList());
         preparedProjectionData.sort(Comparator.comparing(DailyCurrencyRate::getRateDate));
         return preparedProjectionData;
+    }
+
+    private ProjectionDataResponse getProjectionResponseWithLastRate(ProjectionDataResponse dataResponse) {
+        ProjectionDataResponse responseWithLastRate = new ProjectionDataResponse(new ArrayList<>(),
+                dataResponse.getLog(), dataResponse.isSuccessful());
+        DailyCurrencyRate lastDateRate = dataResponse.getProvidedData()
+                .get(dataResponse.getProvidedData().size() - 1);
+        responseWithLastRate.getProvidedData().add(lastDateRate);
+        return responseWithLastRate;
     }
 
 }

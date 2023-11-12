@@ -1,6 +1,6 @@
 package ru.savior.rateprojection.shell.tgbot;
 
-public enum TgBotCommandType {
+public enum CommandType {
     RATE_SINGLE_DATE,
     RATE_PERIOD,
     START,

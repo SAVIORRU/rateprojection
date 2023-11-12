@@ -1,7 +1,8 @@
 package ru.savior.rateprojection.shell.tgbot.command;
 
-public class BotCommandConstants {
-    public static final String PARAM_VALUE_DELIMITER = ",";
+public class CommandConstants {
+    public static final String COMMAND_WORD_DELIMITER = "\s+";
+    public static final String PARAM_VALUE_DELIMITER = "\s*,\s*";
     public static final String START_COMMAND_PREFIX = "/";
     public static final String COMMAND_PARAM_PREFIX = "-";
 

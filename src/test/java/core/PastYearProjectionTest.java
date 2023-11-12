@@ -6,9 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 
 import org.junit.jupiter.api.Test;
 
-import ru.savior.rateprojection.core.entity.Currency;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
-import ru.savior.rateprojection.core.service.ProjectionDataResponse;
+import ru.savior.rateprojection.core.entity.ProjectionDataResponse;
 import ru.savior.rateprojection.core.service.algorithm.PastYearProjection;
 
 
@@ -16,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
 
 public class PastYearProjectionTest {
@@ -30,7 +30,8 @@ public class PastYearProjectionTest {
     public void given_ValidData_whne_projectForWeek_successfulResponse() {
         List<DailyCurrencyRate> projectionData = createSampleProjectionData();
 
-        ProjectionDataResponse response = pastYearProjection.projectForWeek(projectionData);
+        ProjectionDataResponse response = pastYearProjection.projectForDate(projectionData,
+                LocalDate.now().plusDays(7).atStartOfDay());
 
         assertTrue(response.isSuccessful());
         assertEquals(7, response.getProvidedData().size());
@@ -41,7 +42,8 @@ public class PastYearProjectionTest {
     public void given_ValidData_when_projectForMonth_successfulResponse() {
         List<DailyCurrencyRate> projectionData = createSampleProjectionData();
 
-        ProjectionDataResponse response = pastYearProjection.projectForMonth(projectionData);
+        ProjectionDataResponse response = pastYearProjection.projectForDate(projectionData,
+                LocalDate.now().plusMonths(1).atStartOfDay());
 
         assertTrue(response.isSuccessful());
         assertEquals(0, projectionData.get(0).getRate().compareTo(response.getProvidedData().get(0).getRate()));
@@ -51,7 +53,8 @@ public class PastYearProjectionTest {
     public void given_ValidData_when_projectForDay_successfulResponse() {
         List<DailyCurrencyRate> projectionData = createSampleProjectionData();
 
-        ProjectionDataResponse response = pastYearProjection.projectForNextDay(projectionData);
+        ProjectionDataResponse response = pastYearProjection.projectForDate(projectionData,
+                LocalDate.now().plusDays(1).atStartOfDay());
 
         assertTrue(response.isSuccessful());
         assertEquals(1, response.getProvidedData().size());
@@ -65,7 +68,7 @@ public class PastYearProjectionTest {
         BigDecimal rate = BigDecimal.valueOf(1.0);
 
         while (currentDate.isBefore(LocalDate.now().atStartOfDay())) {
-            projectionData.add(new DailyCurrencyRate(Currency.USD, currentDate, rate));
+            projectionData.add(new DailyCurrencyRate(Currency.getInstance("USD"), currentDate, rate));
             currentDate = currentDate.plusDays(1);
         }
 

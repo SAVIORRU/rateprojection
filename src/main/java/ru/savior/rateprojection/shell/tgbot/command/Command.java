@@ -1,12 +1,12 @@
 package ru.savior.rateprojection.shell.tgbot.command;
 
-import ru.savior.rateprojection.shell.tgbot.TgBotCommandType;
+import ru.savior.rateprojection.shell.tgbot.CommandType;
 
 import java.util.List;
 import java.util.Map;
 
-public interface BotCommand {
+public interface Command {
     public List<String> execute(Map<String, Object> context);
 
-    public TgBotCommandType getCommandType();
+    public CommandType getCommandType();
 }

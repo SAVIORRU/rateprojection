@@ -13,7 +13,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
-import ru.savior.rateprojection.core.service.ProjectionDataResponse;
+import ru.savior.rateprojection.core.entity.ProjectionDataResponse;
 
 import java.awt.*;
 import java.io.File;
@@ -93,7 +93,7 @@ public class ChartBuilder {
     }
 
     private static TimeSeries buildSeries(ProjectionDataResponse projectionData) {
-        TimeSeries series = new TimeSeries(projectionData.getProvidedData().get(0).getCurrencyType().toString());
+        TimeSeries series = new TimeSeries(projectionData.getProvidedData().get(0).getCurrency().getCurrencyCode());
         for (DailyCurrencyRate dailyCurrencyRate : projectionData.getProvidedData()) {
             series.add(new Day(dailyCurrencyRate.getRateDate().getDayOfMonth(),
                     dailyCurrencyRate.getRateDate().getMonthValue(),

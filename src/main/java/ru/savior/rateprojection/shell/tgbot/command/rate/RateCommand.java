@@ -2,21 +2,20 @@ package ru.savior.rateprojection.shell.tgbot.command.rate;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import ru.savior.rateprojection.core.entity.Currency;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
-import ru.savior.rateprojection.core.service.ProjectionDataResponse;
+import ru.savior.rateprojection.core.entity.ProjectionDataResponse;
 import ru.savior.rateprojection.core.service.ProjectionService;
-import ru.savior.rateprojection.core.service.algorithm.ProjectionAlgorithmType;
-import ru.savior.rateprojection.shell.tgbot.TgBotCommandType;
-import ru.savior.rateprojection.shell.tgbot.TgBotContextConstants;
-import ru.savior.rateprojection.shell.tgbot.command.BotCommandImpl;
+import ru.savior.rateprojection.core.enums.ProjectionAlgorithmType;
+import ru.savior.rateprojection.shell.tgbot.CommandType;
+import ru.savior.rateprojection.shell.tgbot.ContextConstants;
+import ru.savior.rateprojection.shell.tgbot.command.CommandImpl;
 
 import java.util.*;
 
 
-public abstract class RateCommand extends BotCommandImpl {
-    public static final String CONTEXT_DATA_PROJECTION = TgBotContextConstants.CONTEXT_DATA_PROJECTION;
-    public static final String CONTEXT_PROJECTION_SERVICE = TgBotContextConstants.CONTEXT_PROJECTION_SERVICE;
+public abstract class RateCommand extends CommandImpl {
+    public static final String CONTEXT_DATA_PROJECTION = ContextConstants.CONTEXT_DATA_PROJECTION;
+    public static final String CONTEXT_PROJECTION_SERVICE = ContextConstants.CONTEXT_PROJECTION_SERVICE;
 
     public static final String COMMAND_WORD = "rate";
     public static final String COMMAND_ARGUMENT_ALGORITHM = "alg";
@@ -34,7 +33,7 @@ public abstract class RateCommand extends BotCommandImpl {
     @Getter(AccessLevel.PROTECTED)
     private final Map<String, String> additionalParamsRaw;
 
-    public RateCommand(TgBotCommandType commandType,
+    public RateCommand(CommandType commandType,
                        Set<Currency> currencies,
                        ProjectionAlgorithmType algorithmType,
                        Map<String, String> additionalParamsRaw) {
@@ -68,7 +67,7 @@ public abstract class RateCommand extends BotCommandImpl {
         List<String> output = new ArrayList<>();
         for (ProjectionDataResponse dataResponse : dataResponses) {
             if (dataResponse.isSuccessful()) {
-                String currency = dataResponse.getProvidedData().get(0).getCurrencyType().toString();
+                String currency = dataResponse.getProvidedData().get(0).getCurrency().getCurrencyCode();
                 output.add("Projection results for currency " + currency + ":");
             }
             output.addAll(dataResponse.format());

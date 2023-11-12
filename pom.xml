@@ -90,6 +90,11 @@
             <artifactId>telegrambotsextensions</artifactId>
             <version>6.7.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>2.14.2</version>
+        </dependency>
 
 
     </dependencies>

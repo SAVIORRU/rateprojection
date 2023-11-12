@@ -1,7 +1,7 @@
 package ru.savior.rateprojection.shell.tgbot.command.pattern;
 
-import ru.savior.rateprojection.shell.tgbot.TgBotCommandType;
+import ru.savior.rateprojection.shell.tgbot.CommandType;
 
 public interface CommandPatternFactory {
-    public BotCommandPattern getCommandPattern(TgBotCommandType commandType);
+    public BotCommandPattern getCommandPattern(CommandType commandType) throws IllegalArgumentException;
 }

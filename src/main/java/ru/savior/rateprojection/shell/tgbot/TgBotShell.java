@@ -4,9 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-import ru.savior.rateprojection.core.service.ProjectionDataResponse;
+import ru.savior.rateprojection.core.entity.ProjectionDataResponse;
 import ru.savior.rateprojection.core.service.ProjectionServiceImpl;
 import ru.savior.rateprojection.datasource.DataSource;
+import ru.savior.rateprojection.datasource.excel.ExcelCurrencyTexts;
 import ru.savior.rateprojection.datasource.excel.ExcelDataSource;
 import ru.savior.rateprojection.shell.Shell;
 import ru.savior.rateprojection.shell.console.ConsoleShell;
@@ -24,9 +25,9 @@ public class TgBotShell implements Shell {
     public void runShell() {
         try {
             Map<String, Object> context = getContext();
-            TgProjectionBot bot = new TgProjectionBot(context, new TgBotCommandParser(new CommandFactoryImpl(),
+            ProjectionBot bot = new ProjectionBot(context, new CommandParser(new CommandFactoryImpl(),
                     new CommandPatternFactoryImpl()),
-                    new TgBotCommandProcessor(new ProjectionServiceImpl()));
+                    new CommandProcessor(new ProjectionServiceImpl()));
             TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
             api.registerBot(bot);
         } catch (TelegramApiException | RuntimeException exception) {
@@ -40,7 +41,7 @@ public class TgBotShell implements Shell {
         String jarFilePath = ConsoleShell.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         File jarFile = new File(jarFilePath);
         settings.put("excelFilesFolder", jarFile.getParentFile().getAbsolutePath());
-        DataSource excelDataSource = new ExcelDataSource();
+        DataSource excelDataSource = new ExcelDataSource(new ExcelCurrencyTexts());
         excelDataSource.configure(settings);
         ProjectionDataResponse dataResponse = excelDataSource.provideData();
         if (dataResponse.isSuccessful()) {

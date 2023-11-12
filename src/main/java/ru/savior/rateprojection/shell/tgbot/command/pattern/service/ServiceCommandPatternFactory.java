@@ -1,7 +1,7 @@
 package ru.savior.rateprojection.shell.tgbot.command.pattern.service;
 
 import ru.savior.rateprojection.shell.tgbot.command.pattern.BotCommandPattern;
-import ru.savior.rateprojection.shell.tgbot.TgBotCommandType;
+import ru.savior.rateprojection.shell.tgbot.CommandType;
 import ru.savior.rateprojection.shell.tgbot.command.pattern.CommandPatternFactoryImpl;
 import ru.savior.rateprojection.shell.tgbot.command.service.HelpCommand;
 import ru.savior.rateprojection.shell.tgbot.command.service.StartCommand;
@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.savior.rateprojection.shell.tgbot.command.BotCommandConstants.COMMAND_WORD_SETTING;
+import static ru.savior.rateprojection.shell.tgbot.command.CommandConstants.COMMAND_WORD_SETTING;
 
 public class ServiceCommandPatternFactory extends CommandPatternFactoryImpl {
-    public BotCommandPattern getCommandPattern(TgBotCommandType commandType) {
+    public BotCommandPattern getCommandPattern(CommandType commandType) {
         Map<String, List<String>> patternParams = new HashMap<>();
         switch (commandType) {
             case START -> {

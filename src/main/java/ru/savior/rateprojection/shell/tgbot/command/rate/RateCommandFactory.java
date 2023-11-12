@@ -1,23 +1,24 @@
 package ru.savior.rateprojection.shell.tgbot.command.rate;
 
-import ru.savior.rateprojection.core.entity.Currency;
-import ru.savior.rateprojection.core.service.algorithm.ProjectionAlgorithmType;
-import ru.savior.rateprojection.shell.tgbot.TgBotCommandType;
-import ru.savior.rateprojection.shell.tgbot.command.BotCommand;
-import ru.savior.rateprojection.shell.tgbot.command.BotCommandConstants;
+import ru.savior.rateprojection.core.enums.ProjectionAlgorithmType;
+import ru.savior.rateprojection.shell.tgbot.CommandType;
+import ru.savior.rateprojection.shell.tgbot.command.Command;
+import ru.savior.rateprojection.shell.tgbot.command.CommandConstants;
 import ru.savior.rateprojection.shell.tgbot.command.CommandFactoryImpl;
 
 import java.util.*;
 
 public class RateCommandFactory extends CommandFactoryImpl {
     private static final int COMMAND_WORD_INDEX = 0;
-    private static final String CURRENCY_PARAM_DELIMITER = BotCommandConstants.PARAM_VALUE_DELIMITER;
+    private static final String CURRENCY_PARAM_DELIMITER = CommandConstants.PARAM_VALUE_DELIMITER;
+    private static final String COMMAND_WORD_DELIMITER = CommandConstants.COMMAND_WORD_DELIMITER;
+
     private static final String COMMAND_ARGUMENT_ALGORITHM = RateCommand.COMMAND_ARGUMENT_ALGORITHM;
     private static final Map<String, ProjectionAlgorithmType> projectionAlgorithmsTexts =
             RateCommand.getProjectionAlgorithmsTexts();
 
     @Override
-    public BotCommand getCommandFromString(TgBotCommandType commandType, String input) throws IllegalArgumentException {
+    public Command getCommandFromString(CommandType commandType, String input) throws IllegalArgumentException {
         Set<Currency> currencies = extractCurrencyParam(input);
         Map<String, String> rawParams = extractRawParams(input);
         ProjectionAlgorithmType algorithmType = getProjectionAlgorithmTypeParam(rawParams);
@@ -33,7 +34,7 @@ public class RateCommandFactory extends CommandFactoryImpl {
     }
 
     private Set<Currency> extractCurrencyParam(String input) {
-        List<String> commandTokens = Arrays.asList(input.split("\\s* \\s*"));
+        List<String> commandTokens = Arrays.asList(input.split(COMMAND_WORD_DELIMITER));
         List<String> currencyTexts = new ArrayList<>();
         for (int i = 0; i < commandTokens.size(); i++) {
             if (i == COMMAND_WORD_INDEX) {
@@ -48,7 +49,7 @@ public class RateCommandFactory extends CommandFactoryImpl {
                     continue;
                 }
                 List<String> currencyTokens = Arrays
-                        .stream(commandTokens.get(i).split("\\s*" + CURRENCY_PARAM_DELIMITER + "\\s*"))
+                        .stream(commandTokens.get(i).split(CURRENCY_PARAM_DELIMITER))
                         .filter(token -> !(token.trim().isEmpty() || token.trim().isBlank()))
                         .map(token -> token.trim().toUpperCase())
                         .toList();
@@ -58,8 +59,9 @@ public class RateCommandFactory extends CommandFactoryImpl {
         }
         Set<Currency> currencies = new HashSet<>();
         for (String currencyText : currencyTexts) {
-            if (Arrays.stream(Currency.values()).anyMatch(x -> x.toString().equals(currencyText.toUpperCase()))) {
-                currencies.add(Currency.valueOf(currencyText.toUpperCase()));
+            if (Currency.getAvailableCurrencies().stream()
+                    .anyMatch(x -> x.getCurrencyCode().equals(currencyText.toUpperCase()))) {
+                currencies.add(Currency.getInstance(currencyText.toUpperCase()));
             } else {
                 throw new IllegalArgumentException("The following currency " + currencyText + " is invalid");
             }
@@ -69,7 +71,7 @@ public class RateCommandFactory extends CommandFactoryImpl {
 
     private Map<String, String> extractRawParams(String input) {
         Map<String, String> rawParams = new HashMap<>();
-        List<String> commandTokens = Arrays.asList(input.split("\\s* \\s*"));
+        List<String> commandTokens = Arrays.asList(input.split(COMMAND_WORD_DELIMITER));
         for (int i = 0; i < commandTokens.size(); i++) {
             if (i == COMMAND_WORD_INDEX) {
                 continue;

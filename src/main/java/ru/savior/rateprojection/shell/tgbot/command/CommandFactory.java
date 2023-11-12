@@ -1,7 +1,7 @@
 package ru.savior.rateprojection.shell.tgbot.command;
 
-import ru.savior.rateprojection.shell.tgbot.TgBotCommandType;
+import ru.savior.rateprojection.shell.tgbot.CommandType;
 
 public interface CommandFactory {
-    public BotCommand getCommandFromString(TgBotCommandType commandType, String input) throws IllegalArgumentException;
+    public Command getCommandFromString(CommandType commandType, String input) throws IllegalArgumentException;
 }

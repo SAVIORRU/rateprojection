@@ -1,15 +1,16 @@
 package ru.savior.rateprojection.shell.tgbot.command.rate;
 
-import ru.savior.rateprojection.core.entity.Currency;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
-import ru.savior.rateprojection.core.service.ProjectionDataResponse;
+import ru.savior.rateprojection.core.entity.ProjectionDataResponse;
 import ru.savior.rateprojection.core.service.ProjectionService;
-import ru.savior.rateprojection.core.service.algorithm.ProjectionAlgorithmType;
-import ru.savior.rateprojection.shell.tgbot.TgBotCommandType;
+import ru.savior.rateprojection.core.enums.ProjectionAlgorithmType;
+import ru.savior.rateprojection.shell.tgbot.CommandType;
 import ru.savior.rateprojection.shell.tgbot.utils.ChartBuilder;
 
 import java.util.*;
-
+@Slf4j
 public class RatePeriodCommand extends RateCommand {
     public static final String PERIOD_OUTPUT_PARAM_LIST = "list";
     public static final String PERIOD_OUTPUT_PARAM_GRAPH = "graph";
@@ -31,40 +32,35 @@ public class RatePeriodCommand extends RateCommand {
     public RatePeriodCommand(Set<Currency> currencies,
                              ProjectionAlgorithmType algorithmType,
                              Map<String, String> additionalParamsRaw) {
-        super(TgBotCommandType.RATE_PERIOD, currencies, algorithmType, additionalParamsRaw);
+        super(CommandType.RATE_PERIOD, currencies, algorithmType, additionalParamsRaw);
     }
 
     @Override
     protected List<String> executeRateCommand(List<DailyCurrencyRate> projectionData, ProjectionService projectionService) {
         List<String> commandOutput = new ArrayList<>();
-        String periodParam = null;
-        String outputParam = null;
+        String periodParam;
+        String outputParam;
         try {
             outputParam = getParamFromSet(super.getAdditionalParamsRaw(), COMMAND_ARGUMENT_OUTPUT,
                     PERIOD_OUTPUT_PARAM_VALUES);
-        } catch (RuntimeException exception) {
-            commandOutput.add("The following -output parameter value is invalid");
-            return commandOutput;
-        }
-        try {
             periodParam = getParamFromSet(super.getAdditionalParamsRaw(), COMMAND_ARGUMENT_PERIOD,
                     PERIOD_TIME_PARAM_VALUES);
         } catch (RuntimeException exception) {
-            commandOutput.add("The following -period parameter value is invalid");
+            log.error(exception.getMessage());
+            log.debug(ExceptionUtils.getStackTrace(exception));
+            commandOutput.add(exception.getMessage());
             return commandOutput;
         }
         List<ProjectionDataResponse> responses = new ArrayList<>();
         for (Currency currency : super.getCurrencies()) {
-            ProjectionDataResponse dataResponse = null;
             switch (periodParam) {
                 case PERIOD_TIME_PARAM_WEEK -> {
-                    dataResponse = projectionService
-                            .projectForNextWeek(projectionData, currency, super.getAlgorithmType());}
+                    responses.add(projectionService
+                            .projectForNextWeek(projectionData, currency, super.getAlgorithmType()));}
                 case PERIOD_TIME_PARAM_MONTH -> {
-                    dataResponse = projectionService
-                            .projectForNextMonth(projectionData, currency, super.getAlgorithmType());}
+                    responses.add(projectionService
+                            .projectForNextMonth(projectionData, currency, super.getAlgorithmType()));}
             }
-            responses.add(dataResponse);
         }
         switch (outputParam) {
             case PERIOD_OUTPUT_PARAM_LIST -> {
@@ -81,7 +77,7 @@ public class RatePeriodCommand extends RateCommand {
         if (values.contains(outputText)) {
             return outputText;
         } else {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(String.format("Cannot find %s param value in provided set", paramName));
         }
     }
 

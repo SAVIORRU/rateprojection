@@ -2,7 +2,8 @@ package ru.savior.rateprojection.core.service.algorithm;
 
 import lombok.Getter;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
-import ru.savior.rateprojection.core.service.ProjectionDataResponse;
+import ru.savior.rateprojection.core.enums.ProjectionAlgorithmType;
+import ru.savior.rateprojection.core.entity.ProjectionDataResponse;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,29 +20,9 @@ public abstract class ProjectionAlgorithm {
         this.type = type;
     }
 
-
-    public ProjectionDataResponse projectForWeek(List<DailyCurrencyRate> projectionData) {
-        LocalDateTime targetDate = LocalDate.now().plusDays(7).atStartOfDay();
-        return projectForDate(projectionData, targetDate);
-    }
-
-
-    public ProjectionDataResponse projectForMonth(List<DailyCurrencyRate> projectionData) {
-        LocalDateTime targetDate = LocalDate.now().plusMonths(1).atStartOfDay();
-        return projectForDate(projectionData, targetDate);
-    }
-
-
-    public ProjectionDataResponse projectForNextDay(List<DailyCurrencyRate> projectionData) {
-        LocalDateTime targetDate = LocalDate.now().plusDays(1).atStartOfDay();
-        return projectForDate(projectionData, targetDate);
-    }
-
     public ProjectionDataResponse projectForDate(List<DailyCurrencyRate> projectionData, LocalDateTime targetDate) {
-        ProjectionDataResponse dataResponse = new ProjectionDataResponse(new ArrayList<>(), new ArrayList<>(),
-                true);
-        if (targetDate.toLocalDate().atStartOfDay().isBefore(LocalDate.now().atStartOfDay())
-                || targetDate.toLocalDate().atStartOfDay().isEqual(LocalDate.now().atStartOfDay())) {
+        ProjectionDataResponse dataResponse = new ProjectionDataResponse(true);
+        if (!checkTargetDate(targetDate)) {
             dataResponse.getLog().add("Specific date cannot be before or equal current date");
             dataResponse.setSuccessful(false);
             return dataResponse;
@@ -51,7 +32,7 @@ public abstract class ProjectionAlgorithm {
                 try {
                     DailyCurrencyRate lastRate = projectionData.get(projectionData.size() - 1);
                     BigDecimal rate = findRateValue(projectionData, currentDate);
-                    dataResponse.getProvidedData().add(new DailyCurrencyRate(lastRate.getCurrencyType(), currentDate,
+                    dataResponse.getProvidedData().add(new DailyCurrencyRate(lastRate.getCurrency(), currentDate,
                             rate));
 
                 } catch (RuntimeException exception) {
@@ -65,4 +46,9 @@ public abstract class ProjectionAlgorithm {
     }
 
     protected abstract BigDecimal findRateValue(List<DailyCurrencyRate> projectionData, LocalDateTime targetDate);
+
+    private boolean checkTargetDate(LocalDateTime targetDate) {
+        return !targetDate.toLocalDate().atStartOfDay().isBefore(LocalDate.now().atStartOfDay())
+                && !targetDate.toLocalDate().atStartOfDay().isEqual(LocalDate.now().atStartOfDay());
+    }
 }

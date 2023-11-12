@@ -1,7 +1,7 @@
 package ru.savior.rateprojection.shell.tgbot.command.pattern.rate;
 
 import ru.savior.rateprojection.shell.tgbot.command.pattern.BotCommandPattern;
-import ru.savior.rateprojection.shell.tgbot.TgBotCommandType;
+import ru.savior.rateprojection.shell.tgbot.CommandType;
 import ru.savior.rateprojection.shell.tgbot.command.pattern.CommandPatternFactoryImpl;
 import ru.savior.rateprojection.shell.tgbot.command.rate.RateCommand;
 import ru.savior.rateprojection.shell.tgbot.command.rate.RatePeriodCommand;
@@ -12,14 +12,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.savior.rateprojection.shell.tgbot.command.BotCommandConstants.*;
+import static ru.savior.rateprojection.shell.tgbot.command.CommandConstants.*;
 import static ru.savior.rateprojection.shell.tgbot.command.rate.RateCommand.COMMAND_ARGUMENT_ALGORITHM;
 
 public class RateCommandPatternFactory extends CommandPatternFactoryImpl {
     private static final int CURRENCY_COUNT_SINGLE = 1;
     private static final int CURRENCY_COUNT_MULTIPLE = 5;
 
-    public BotCommandPattern getCommandPattern(TgBotCommandType commandType) {
+    public BotCommandPattern getCommandPattern(CommandType commandType) {
         Map<String, List<String>> patternParams = new HashMap<>();
         patternParams.put(COMMAND_WORD_SETTING, new ArrayList<>() {{
             add(RateCommand.COMMAND_WORD);

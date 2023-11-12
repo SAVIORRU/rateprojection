@@ -1,17 +1,17 @@
 package ru.savior.rateprojection.shell.tgbot.command.service;
 
-import ru.savior.rateprojection.shell.tgbot.TgBotCommandType;
-import ru.savior.rateprojection.shell.tgbot.command.BotCommandImpl;
+import ru.savior.rateprojection.shell.tgbot.CommandType;
+import ru.savior.rateprojection.shell.tgbot.command.CommandImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class StartCommand extends BotCommandImpl {
+public class StartCommand extends CommandImpl {
 
     public static final String COMMAND_WORD = "start";
     public StartCommand() {
-        super(TgBotCommandType.START);
+        super(CommandType.START);
     }
 
     @Override

@@ -1,19 +1,15 @@
 package ru.savior.rateprojection.shell.tgbot.command.rate;
 
-import ru.savior.rateprojection.core.entity.Currency;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
-import ru.savior.rateprojection.core.service.ProjectionDataResponse;
+import ru.savior.rateprojection.core.entity.ProjectionDataResponse;
 import ru.savior.rateprojection.core.service.ProjectionService;
-import ru.savior.rateprojection.core.service.algorithm.ProjectionAlgorithmType;
-import ru.savior.rateprojection.shell.tgbot.TgBotCommandType;
+import ru.savior.rateprojection.core.enums.ProjectionAlgorithmType;
+import ru.savior.rateprojection.shell.tgbot.CommandType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RateSingleDateCommand extends RateCommand {
     public static final String SINGLE_DATE_PARAM_TOMORROW = "tomorrow";
@@ -22,7 +18,7 @@ public class RateSingleDateCommand extends RateCommand {
     public RateSingleDateCommand(Set<Currency> currencies,
                                  ProjectionAlgorithmType algorithmType,
                                  Map<String, String> additionalParamsRaw) {
-        super(TgBotCommandType.RATE_SINGLE_DATE, currencies, algorithmType, additionalParamsRaw);
+        super(CommandType.RATE_SINGLE_DATE, currencies, algorithmType, additionalParamsRaw);
     }
 
     @Override
