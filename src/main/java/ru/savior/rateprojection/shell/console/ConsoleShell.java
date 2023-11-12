@@ -1,8 +1,9 @@
 package ru.savior.rateprojection.shell.console;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.savior.rateprojection.core.service.ProjectionDataResponse;
+import ru.savior.rateprojection.core.entity.ProjectionDataResponse;
 import ru.savior.rateprojection.datasource.DataSource;
+import ru.savior.rateprojection.datasource.excel.ExcelCurrencyTexts;
 import ru.savior.rateprojection.datasource.excel.ExcelDataSource;
 import ru.savior.rateprojection.shell.Shell;
 
@@ -15,6 +16,7 @@ public class ConsoleShell implements Shell {
     private final Map<String, Object> context = new HashMap<>();
     private final ConsoleCommandParser commandParser = new ConsoleCommandParser();
     private final ConsoleCommandProcessor commandProcessor = new ConsoleCommandProcessor();
+
     private boolean isRunning;
 
     public ConsoleShell() {
@@ -41,7 +43,7 @@ public class ConsoleShell implements Shell {
     private List<String> loadContext() {
         context.put(ConsoleCommand.CONTEXT_DATA_SHELL, this);
         List<String> loadingLog = new ArrayList<>();
-        DataSource excelDataSource = new ExcelDataSource();
+        DataSource excelDataSource = new ExcelDataSource(new ExcelCurrencyTexts());
         try {
             Map<String, String> settings = new HashMap<>();
             String jarFilePath = ConsoleShell.class.getProtectionDomain().getCodeSource().getLocation().getPath();

@@ -2,13 +2,14 @@ package ru.savior.rateprojection.datasource.excel;
 
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jetbrains.annotations.NotNull;
-import ru.savior.rateprojection.core.entity.Currency;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
-import ru.savior.rateprojection.core.service.ProjectionDataResponse;
+import ru.savior.rateprojection.core.entity.ProjectionDataResponse;
 import ru.savior.rateprojection.datasource.DataSource;
 
 import java.io.File;
@@ -22,28 +23,22 @@ import java.time.ZoneId;
 import java.util.*;
 
 @Slf4j
+@RequiredArgsConstructor
 public class ExcelDataSource implements DataSource {
 
     private static final String FOLDER_SETTING_NAME = "excelFilesFolder";
-    private static final Map<String, Currency> currencyTexts = new HashMap<>() {{
-        put("турецкая лира", Currency.TRY);
-        put("доллар сша", Currency.USD);
-        put("евро", Currency.EUR);
-    }};
     private static final String EXCEL_FIELD_NOMINAL = "nominal";
     private static final String EXCEL_FIELD_DATE = "data";
     private static final String EXCEL_FIELD_RATE = "curs";
     private static final String EXCEL_FIELD_CURRENCY = "cdx";
-
     private String fileFolderPath;
+    private final ExcelCurrencyTexts currencyTexts;
 
-    public ExcelDataSource() {
 
-    }
 
     @Override
     public ProjectionDataResponse provideData() {
-        ProjectionDataResponse dataSourceResponse = new ProjectionDataResponse(new ArrayList<>(), new ArrayList<>(), false);
+        ProjectionDataResponse dataSourceResponse = new ProjectionDataResponse( false);
         log.info("Providing data from Excel data source...");
         if (!validateDirectory(fileFolderPath)) {
             log.error("Excel file directory {} is invalid", fileFolderPath);
@@ -60,7 +55,7 @@ public class ExcelDataSource implements DataSource {
     }
 
     private ProjectionDataResponse extractDataFromFiles(List<String> filesToRead) {
-        ProjectionDataResponse dataSourceResponse = new ProjectionDataResponse(new ArrayList<>(), new ArrayList<>(), false);
+        ProjectionDataResponse dataSourceResponse = new ProjectionDataResponse(false);
         int validFilesCount = 0;
         for (String filePath : filesToRead) {
             try {
@@ -217,20 +212,17 @@ public class ExcelDataSource implements DataSource {
                 if (checkForFieldExist(rowData, EXCEL_FIELD_RATE, rowIndex)) {
                     rate = new BigDecimal((rowData.get(EXCEL_FIELD_RATE)));
                 }
+                Currency currency = Currency.getInstance("USD");
                 if (checkForFieldExist(rowData, EXCEL_FIELD_CURRENCY, rowIndex)) {
-                    if (!currencyTexts.containsKey(rowData.get(EXCEL_FIELD_CURRENCY).toLowerCase())) {
-                        log.error("Unable to find {} field in table structure, row {}", EXCEL_FIELD_CURRENCY, rowIndex);
-                        throw new IllegalArgumentException("The following currency " +
-                                rowData.get(EXCEL_FIELD_CURRENCY) + " not found");
-                    }
+                    currency = currencyTexts.findCurrencyForText(rowData.get(EXCEL_FIELD_CURRENCY));
                 }
 
                 rate = rate.divide(new BigDecimal(nominal), RoundingMode.UP);
 
-                dailyRate = new DailyCurrencyRate(currencyTexts.get(rowData.get(EXCEL_FIELD_CURRENCY).toLowerCase()),
-                        rateDate, rate);
+                dailyRate = new DailyCurrencyRate(currency, rateDate, rate);
             } catch (RuntimeException exception) {
                 log.error("Error during converting row {}, reason: {}", rowIndex, exception.getMessage());
+                log.debug(ExceptionUtils.getStackTrace(exception));
                 throw new RuntimeException(exception.getMessage());
             }
 
@@ -249,6 +241,4 @@ public class ExcelDataSource implements DataSource {
             throw new NoSuchElementException("The following file has invalid format");
         }
     }
-
-
 }

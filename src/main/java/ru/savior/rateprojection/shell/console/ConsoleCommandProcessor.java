@@ -1,15 +1,11 @@
 package ru.savior.rateprojection.shell.console;
 
 import lombok.RequiredArgsConstructor;
-import ru.savior.rateprojection.core.entity.Currency;
 import ru.savior.rateprojection.core.entity.DailyCurrencyRate;
-import ru.savior.rateprojection.core.service.ProjectionDataResponse;
-import ru.savior.rateprojection.core.service.ProjectionService;
-import ru.savior.rateprojection.core.service.algorithm.ProjectionAlgorithmType;
+import ru.savior.rateprojection.core.entity.ProjectionDataResponse;
+import ru.savior.rateprojection.core.service.ProjectionServiceImpl;
+import ru.savior.rateprojection.core.enums.ProjectionAlgorithmType;
 
-import java.text.DecimalFormat;
-import java.time.format.DateTimeFormatter;
-import java.time.format.TextStyle;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -86,12 +82,12 @@ public class ConsoleCommandProcessor {
 
     private List<String> processRateCommand(String currencyTypeRaw, String projectionTimeRaw,
                                             List<DailyCurrencyRate> projectionData) {
-        Currency currencyType;
+        Currency currency;
         List<String> commandOutput = new ArrayList<>();
 
-        if (Arrays.stream(Currency.values())
-                .anyMatch(x -> x.toString().equals(currencyTypeRaw.toUpperCase()))) {
-            currencyType = Currency.valueOf(currencyTypeRaw.toUpperCase());
+        if (Currency.getAvailableCurrencies().stream()
+                .anyMatch(x -> x.getCurrencyCode().equals(currencyTypeRaw.toUpperCase()))) {
+            currency = Currency.getInstance(currencyTypeRaw.toUpperCase());
         } else {
             commandOutput.add("The following currency " + currencyTypeRaw + " not found");
             return commandOutput;
@@ -100,11 +96,11 @@ public class ConsoleCommandProcessor {
         switch (projectionTimeRaw.toLowerCase()) {
             case ConsoleCommand.ARGUMENT_WORD_TOMORROW -> {
                 commandOutput.addAll(processRateForDayCommand(projectionData,
-                        currencyType, ProjectionAlgorithmType.AVERAGE));
+                        currency, ProjectionAlgorithmType.AVERAGE));
             }
             case ConsoleCommand.ARGUMENT_WORD_WEEK -> {
                 commandOutput.addAll(processRateForWeekCommand(projectionData,
-                        currencyType, ProjectionAlgorithmType.AVERAGE));
+                        currency, ProjectionAlgorithmType.AVERAGE));
             }
             default -> {
                 commandOutput.add("The following projection time " + projectionTimeRaw + " is invalid");
@@ -115,44 +111,23 @@ public class ConsoleCommandProcessor {
     }
 
 
-    private List<String> processRateForDayCommand(List<DailyCurrencyRate> projectionData, Currency currencyType,
+    private List<String> processRateForDayCommand(List<DailyCurrencyRate> projectionData, Currency currency,
                                                   ProjectionAlgorithmType algorithmType) {
-        ProjectionService projectionService = new ProjectionService();
-        ProjectionDataResponse dataResponse = projectionService.projectForNextDay(projectionData, currencyType,
+        ProjectionServiceImpl projectionService = new ProjectionServiceImpl();
+        ProjectionDataResponse dataResponse = projectionService.projectForNextDay(projectionData, currency,
                 algorithmType);
 
-        return formatProjectionDataResponse(dataResponse);
+        return dataResponse.format();
     }
 
-    private List<String> processRateForWeekCommand(List<DailyCurrencyRate> projectionData, Currency currencyType,
+    private List<String> processRateForWeekCommand(List<DailyCurrencyRate> projectionData, Currency currency,
                                                    ProjectionAlgorithmType algorithmType) {
-        ProjectionService projectionService = new ProjectionService();
-        ProjectionDataResponse dataResponse = projectionService.projectForNextWeek(projectionData, currencyType,
+        ProjectionServiceImpl projectionService = new ProjectionServiceImpl();
+        ProjectionDataResponse dataResponse = projectionService.projectForNextWeek(projectionData, currency,
                 algorithmType);
 
-        return formatProjectionDataResponse(dataResponse);
+        return dataResponse.format();
     }
 
-    private List<String> formatProjectionDataResponse(ProjectionDataResponse dataResponse) {
-        List<String> commandOutput = new ArrayList<>();
-        if (dataResponse.isSuccessful()) {
-            for (DailyCurrencyRate dailyCurrencyRate : dataResponse.getProvidedData()) {
-                commandOutput.add(formatDailyRate(dailyCurrencyRate));
-            }
-        } else {
-            commandOutput.addAll(dataResponse.getLog());
-        }
-
-        return commandOutput;
-    }
-
-    private String formatDailyRate(DailyCurrencyRate dailyCurrencyRate) {
-        String rateDate = dailyCurrencyRate.getRateDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        String dayOfWeek = dailyCurrencyRate.getRateDate().getDayOfWeek().getDisplayName(TextStyle.SHORT,
-                new Locale("ru", "RU"));
-        String rate = new DecimalFormat("#.00").format(dailyCurrencyRate.getRate());
-
-        return dayOfWeek + " " + rateDate + " - " + rate;
-    }
 
 }
